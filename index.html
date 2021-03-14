@@ -44,6 +44,7 @@
                         <td>{{ aluno.nota3 }}</td>
                         <td>{{ aluno.media }}</td>
                         <td><button class="btn blue" ng-click="abrirModalEdicao(aluno)">Editar</button></td>
+                        <td><button class="btn red" ng-click="excluir(aluno.id)">Excluir</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -163,6 +164,13 @@
                     $scope.alunos[idx] = $scope.aluno;
                 } 
                 getModal().close();
+            }
+
+            $scope.excluir = function(id) {
+                var idx = $scope.alunos.findIndex(a => a.id === id);
+                if (idx >= 0) {
+                    $scope.alunos.splice(idx, 1);
+                }
             }
 
             var getModal = function() {
