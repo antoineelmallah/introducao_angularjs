@@ -7,6 +7,11 @@
     <title>Angular</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <style>
+        a:hover {
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body ng-controller="indexController">
 
@@ -17,27 +22,36 @@
         <div class="row">
             <input type="text" placeholder="Busca" ng-model="busca.nome">
         </div>
-        <table class="striped">
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>E-mail</th>
-                    <th colspan="3">Notas</th>
-                    <th>Média</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="aluno in alunos | filter: busca">
-                    <td>{{ aluno.nome }}</td>
-                    <td>{{ aluno.email }}</td>
-                    <td ng-repeat="nota in aluno.notas">{{ nota }}</td>
-                    <td>{{ aluno.media }}</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="row">
+            <table class="striped">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>E-mail</th>
+                        <th>Nota 1</th>
+                        <th>Nota 2</th>
+                        <th>Nota 3</th>
+                        <th>Média</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="aluno in alunos | filter: busca">
+                        <td>{{ aluno.nome }}</td>
+                        <td>{{ aluno.email }}</td>
+                        <td>{{ aluno.nota1 }}</td>
+                        <td>{{ aluno.nota2 }}</td>
+                        <td>{{ aluno.nota3 }}</td>
+                        <td>{{ aluno.media }}</td>
+                        <td><button class="btn blue" ng-click="editar(aluno)">Editar</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         <div class="row">
             <!-- Modal Trigger -->
-            <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Adicionar</a>
+            <!--a class="waves-effect waves-light btn modal-trigger" href="#modal1">Adicionar</a-->
+            <button class="btn blue" ng-click="getModal().open()">Adicionar</button>
         </div>
     </main>
 
@@ -89,7 +103,7 @@
         $(document).ready(function() {
 
             $('.modal-trigger').click(function() {
-                M.Modal.init($('.modal'));
+                //$scope.modal = M.Modal.getInstance($('.modal'));
                 //$('.modal').modal();
             });
             
@@ -101,44 +115,47 @@
         .controller('indexController', function($scope) {
             $scope.titulo = 'Sistema com AngularJS';
             $scope.alunos = [
-            {nome: 'Camila', email: 'camila@mail.com', notas: [ 65, 80, 55]},
-            {nome: 'Pedro', email: 'pedro@mail.com', notas: [ 75, 85, 100]},
-            {nome: 'Murilo', email: 'murilo@mail.com', notas: [ 10, 20, 70]},
-            {nome: 'João', email: 'joao@mail.com', notas: [ 50, 55, 60]},
-            {nome: 'Ana', email: 'ana@mail.com', notas: [ 75, 15, 95]},
+            {nome: 'Camila', email: 'camila@mail.com', nota1: 65, nota2: 80, nota3: 55},
+            {nome: 'Pedro', email: 'pedro@mail.com', nota1: 75, nota2: 85, nota3: 100},
+            {nome: 'Murilo', email: 'murilo@mail.com', nota1: 10, nota2: 20, nota3: 70},
+            {nome: 'João', email: 'joao@mail.com', nota1: 50, nota2: 55, nota3: 60},
+            {nome: 'Ana', email: 'ana@mail.com', nota1: 75, nota2: 15, nota3: 95},
             ];
-
+            
+            
             var init = function() {
                 $scope.alunos.forEach(function(aluno) {
                     aluno.media = calcularMedia(aluno);
                 });
+                limparForm();
             }
 
             var calcularMedia = function(aluno) {
-                if (!aluno.notas || !aluno.notas.length) return 0;
-                let total = 0;
-                aluno.notas.forEach(n => {
-                    total += parseInt(n);
-                });
-                return (total / aluno.notas.length).toFixed(2);
+                var nota1 = aluno.nota1 ? parseInt(aluno.nota1) : 0;
+                var nota2 = aluno.nota2 ? parseInt(aluno.nota2) : 0;
+                var nota3 = aluno.nota3 ? parseInt(aluno.nota3) : 0;
+                return ((nota1 + nota2 + nota3) / 3).toFixed(2);
             }
 
             $scope.adicionar = function() {
-                var a = { 
-                    nome: $scope.aluno.nome,
-                    email: $scope.aluno.email,
-                    notas: [
-                        $scope.aluno.nota1,
-                        $scope.aluno.nota2,
-                        $scope.aluno.nota3,
-                    ],
-                };
-                a.media = calcularMedia(a);
-            //    console.log($scope.aluno);
-            //    console.log(a);
-                $scope.alunos.push(a);
-                $scope.aluno = {};
-                M.Modal.getInstance($('.modal')).close();
+                $scope.aluno.media = calcularMedia($scope.aluno);
+                $scope.alunos.push($scope.aluno);
+                limparForm();
+                $scope.getModal().close();
+            }
+
+            $scope.editar = function(aluno) {
+                $scope.aluno = aluno;
+                $scope.getModal().open();
+            }
+
+            $scope.getModal = function() {
+                var modal = $('.modal').modal();
+                return M.Modal.getInstance(modal);
+            }
+
+            var limparForm = function() {
+                $scope.aluno = { nome: '', email: '', nota1: '', nota2: '', nota3: '', media: '' };
             }
 
             init();
