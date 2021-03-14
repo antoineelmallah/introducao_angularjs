@@ -65,33 +65,29 @@
             <div class="row">
                 <div class="row">
                     <div class="input-field col m6 s6">
-                        <input type="text" ng-model="aluno.nome" class="validate">
-                        <label>Nome</label>
+                        <input type="text" ng-model="aluno.nome" class="validate" placeholder="Nome">
                     </div>
                     <div class="input-field col m6 s6">
-                        <input type="text" ng-model="aluno.email" class="validate">
-                        <label>E-mail</label>
+                        <input type="text" ng-model="aluno.email" class="validate" placeholder="E-mail">
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-field col m4 s4">
-                        <input type="text" ng-model="aluno.nota1" class="validate">
-                        <label>Nota1</label>
+                        <input type="text" ng-model="aluno.nota1" class="validate" placeholder="Nota 1">
                     </div>
                     <div class="input-field col m4 s4">
-                        <input type="text" ng-model="aluno.nota2" class="validate">
-                        <label>Nota2</label>
+                        <input type="text" ng-model="aluno.nota2" class="validate" placeholder="Nota 2">
                     </div>
                     <div class="input-field col m4 s4">
-                        <input type="text" ng-model="aluno.nota3" class="validate">
-                        <label>Nota3</label>
+                        <input type="text" ng-model="aluno.nota3" class="validate" placeholder="Nota 3">
                     </div>
                 </div>
             </div>    
         </div>
         <div class="modal-footer">
             <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancelar</a>
-            <a href="#!" class="waves-effect waves-light btn blue" ng-click="adicionar()">Adicionar</a>
+            <a href="#!" class="waves-effect waves-light btn blue" ng-if="editando" ng-click="salvar()">Salvar</a>
+            <a href="#!" class="waves-effect waves-light btn blue" ng-if="!editando" ng-click="adicionar()">Adicionar</a>
         </div>
     </div>
 
@@ -116,11 +112,11 @@
         .controller('indexController', function($scope) {
             $scope.titulo = 'Sistema com AngularJS';
             $scope.alunos = [
-            {nome: 'Camila', email: 'camila@mail.com', nota1: 65, nota2: 80, nota3: 55},
-            {nome: 'Pedro', email: 'pedro@mail.com', nota1: 75, nota2: 85, nota3: 100},
-            {nome: 'Murilo', email: 'murilo@mail.com', nota1: 10, nota2: 20, nota3: 70},
-            {nome: 'João', email: 'joao@mail.com', nota1: 50, nota2: 55, nota3: 60},
-            {nome: 'Ana', email: 'ana@mail.com', nota1: 75, nota2: 15, nota3: 95},
+                {id: 1, nome: 'Camila', email: 'camila@mail.com', nota1: 65, nota2: 80, nota3: 55},
+                {id: 2, nome: 'Pedro', email: 'pedro@mail.com', nota1: 75, nota2: 85, nota3: 100},
+                {id: 3, nome: 'Murilo', email: 'murilo@mail.com', nota1: 10, nota2: 20, nota3: 70},
+                {id: 4, nome: 'João', email: 'joao@mail.com', nota1: 50, nota2: 55, nota3: 60},
+                {id: 5, nome: 'Ana', email: 'ana@mail.com', nota1: 75, nota2: 15, nota3: 95},
             ];
             $scope.editando = false;
             
@@ -145,6 +141,7 @@
             }
 
             $scope.adicionar = function() {
+                $scope.aluno.id = $scope.alunos.length + 1;
                 $scope.aluno.media = calcularMedia($scope.aluno);
                 $scope.alunos.push($scope.aluno);
                 limparForm();
@@ -153,8 +150,19 @@
 
             $scope.abrirModalEdicao = function(aluno) {
                 $scope.editando = true;
-                $scope.aluno = aluno;
+                //$scope.aluno = aluno;
+                $scope.aluno = angular.copy(aluno);
                 getModal().open();
+            }
+
+            $scope.salvar = function() {
+                var idAluno = parseInt($scope.aluno.id);
+                var idx = $scope.alunos.findIndex(a => parseInt(a.id) === idAluno);
+                if (idx >= 0) {
+                    $scope.aluno.media = calcularMedia($scope.aluno);
+                    $scope.alunos[idx] = $scope.aluno;
+                } 
+                getModal().close();
             }
 
             var getModal = function() {
